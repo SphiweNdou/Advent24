@@ -33,10 +33,26 @@ int NumberOfSafeReports (List<List<int>> reports)
 
     foreach (var report in reports)
     {
-        if(LevelsIncreasing(report) ^ LevelsDecreasing(report)) numberOfSafeReports++;
+        if(AllowOneBadLevel(report)) numberOfSafeReports++;
     }
 
     return numberOfSafeReports;
+}
+
+bool AllowOneBadLevel(List<int> report)
+{
+    if (LevelsIncreasing(report) || LevelsDecreasing(report))
+        return true;
+    
+    for (int i = 0; i <report.Count; i++)
+    {
+        var reportCopy = report.ToList();
+        reportCopy.RemoveAt(i);
+
+        if(LevelsIncreasing(reportCopy) || LevelsDecreasing(reportCopy))
+            return true;
+    }
+    return false;
 }
 
 bool LevelsIncreasing (List<int> levels)
