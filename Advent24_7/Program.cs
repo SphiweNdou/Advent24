@@ -41,10 +41,17 @@ bool Solve(ulong current, int index, ulong expected, ulong[] numbers)
 
     ulong next = numbers[index + 1];
 
+    // Addition
     if (Solve(current + next, index + 1, expected, numbers))
         return true;
 
+    // Multiplication
     if (Solve(current * next, index + 1, expected, numbers))
+        return true;
+
+    // Concatenation (as if current = 12 and next = 3 → becomes 123)
+    string concat = current.ToString() + next.ToString();
+    if (Solve(ulong.Parse(concat), index + 1, expected, numbers))
         return true;
 
     return false;
