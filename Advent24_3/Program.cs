@@ -7,26 +7,58 @@ if (!File.Exists(inputFilePath))
     Console.WriteLine("File not found");
     return;
 }
-
 try
 {
-    int totalValue = 0;
+    var input = File.ReadAllText(inputFilePath);
 
-    foreach (var line in File.ReadAllLines(inputFilePath))
+    var mulPattern = @"mul\((\d{1,3}),(\d{1,3})\)";
+    var doPattern = @"do\(\)";
+    var dontPattern = @"don't\(\)";
+
+    var mulMatches = Regex.Matches(input, mulPattern);
+    var doMatches = Regex.Matches(input, doPattern);
+    var dontMatches = Regex.Matches(input, dontPattern);
+
+    var doIndexes = new List<int>();
+    foreach (Match match in doMatches)
     {
-        var multiples = Regex.Matches(line, @"mul\(\d{1,3},\d{1,3}\)").ToList();
-        foreach (var mul in multiples)
+        doIndexes.Add(match.Index);
+    }
+
+    var dontIndexes = new List<int>();
+    foreach (Match match in dontMatches)
+    {
+        dontIndexes.Add(match.Index);
+    }
+
+    var togglePoints = doIndexes.Concat(dontIndexes).OrderBy(i => i).ToArray();
+    var currentToggleIndex = 0;
+    var isEnabled = true;
+
+    int total = 0;
+
+    foreach (Match match in mulMatches)
+    {
+        int matchIndex = match.Index;
+
+        if (currentToggleIndex < togglePoints.Length && matchIndex > togglePoints[currentToggleIndex])
         {
-            int comaIndex = mul.Value.IndexOf(',');
-            int closingIndex = mul.Value.IndexOf(')'); 
-            int a = int.Parse(mul.Value.Substring(4,comaIndex - 4));
-            int b = int.Parse(mul.Value.Substring(comaIndex + 1, (closingIndex - comaIndex)-1));
-            totalValue += a * b;
+            bool isDoCommand = doIndexes.Contains(togglePoints[currentToggleIndex]);
+            isEnabled = isDoCommand;
+
+            currentToggleIndex++;
+        }
+
+        if (isEnabled)
+        {
+            int x = int.Parse(match.Groups[1].Value);
+            int y = int.Parse(match.Groups[2].Value);
+
+            total += x * y;
         }
     }
 
-    Console.WriteLine($"The toatal is: {totalValue}");
-
+    Console.WriteLine($"The toatal is: {total}");
 }
 catch (Exception e)
 {
