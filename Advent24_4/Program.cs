@@ -1,11 +1,5 @@
 ﻿var inputFilePath = "Input\\input.txt";
 
-if (!File.Exists(inputFilePath))
-{
-    Console.WriteLine("File not found");
-    return;
-}
-
 var lines = File.ReadAllLines(inputFilePath);
 var height = lines.Length;
 var width = lines[0].Length;
@@ -20,20 +14,16 @@ for (int y = 0; y < height; y++)
     }
 }
 
-var directions = new (int dx, int dy)[]
+var diagonalDirections = new (int dx, int dy)[]
 {
-    (0, 1),   // Down
-    (1, 0),   // Right
-    (0, -1),  // Up
-    (-1, 0),  // Left
-    (1, 1),   // Down-right
-    (-1, 1),  // Down-left
-    (1, -1),  // Up-right
-    (-1, -1)  // Up-left
+    (1, 1),    // down-right
+    (-1, 1),   // down-left
+    (1, -1),   // up-right
+    (-1, -1)   // up-left
 };
 
+string word = "MAS";
 int foundCount = 0;
-string word = "XMAS";
 
 bool SearchWord(int startX, int startY, int dx, int dy)
 {
@@ -56,12 +46,25 @@ for (int x = 0; x < width; x++)
 {
     for (int y = 0; y < height; y++)
     {
-        foreach (var dir in directions)
+        int diagonalCount = 0;
+
+        foreach (var direction in diagonalDirections)
         {
-            if (SearchWord(x, y, dir.dx, dir.dy))
+            int dx = direction.dx;
+            int dy = direction.dy;
+
+            int startX = x - dx;
+            int startY = y - dy;
+
+            if (SearchWord(startX, startY, dx, dy))
             {
-                foundCount++;
+                diagonalCount++;
             }
+        }
+
+        if (diagonalCount == 2)
+        {
+            foundCount++;
         }
     }
 }
